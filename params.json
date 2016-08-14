@@ -1,0 +1,6 @@
+{
+  "name": "Thetodo",
+  "tagline": "A simple todolist created in Symfony3.1",
+  "body": "# TheTodo\r\nA simple todolist created in Symfony3.1\r\n\r\n## Getting started\r\n1. Run the todo.sql to generate a table fit for the current project.\r\n2. Modify the parameters.yml (/app/config/parameters.yml) so this project can connect to your database.\r\n3. Make sure your document root is pointing to the web directory of this project.\r\n\r\n## TODO\r\n- Highlight today's todos\r\n- Add multi-language support\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
