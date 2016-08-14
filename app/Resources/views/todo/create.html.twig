@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Create new
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li class="active"><a href="#">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+  <h2 class="page-header">Create new</h2>
+  <form name="form" method="post">
+    {{ form_row(form.name, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.description, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.priority, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.dueDate) }}
+    {{ form_rest(form) }}
+    <input type="submit" value="Create" class="btn btn-primary pull-right" />
+  </form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Edit details
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+  <a class="btn btn-default" href="/" data-toggle="tooltip" title="Go Back">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </a>
+  <h2 class="page-header">Edit <strong>{{ todo.name }}</strong></h2>
+  <form name="form" method="post">
+    {{ form_row(form.name, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.description, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.priority, {'attr' : {'class' : 'form-control'}}) }}
+    {{ form_row(form.dueDate) }}
+    {{ form_rest(form) }}
+    <input type="submit" value="Edit" class="btn btn-primary pull-right" />
+  </form>
+{% endblock %}

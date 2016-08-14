@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Todo List
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+  .center-text {
+    text-align: center;
+  }
+  .text-danger {
+    color: #9A0000;
+  }
+  .text-warning {
+    color: #FF6600;
+  }
+  .text-info {
+    color: #003FC8;
+  }
+  .alert-danger {
+    color: #9A0000;
+  }
+  .alert-warning {
+    color: #FF6600;
+  }
+  .alert-info {
+    color: #003FC8;
+  }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<li class="active"><a href="#">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+<div class="panel panel-default">
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Todo</th>
+        <th>Due date</th>
+        <th>Actions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for todo in todos %}
+
+      {% if todo.priority == "High" %}
+        <tr class="clickable-row alert alert-danger" data-href="/details/{{ todo.id }}">
+          <td class="center-text">
+            <span class="text-danger fa fa-exclamation-circle" aria-hidden="true"></span>
+          </td>
+      {% endif %}
+
+      {% if todo.priority == "Medium" %}
+        <tr class="clickable-row alert alert-warning" data-href="/details/{{ todo.id }}">
+          <td class="center-text">
+            <span class="text-warning fa fa-exclamation-triangle" aria-hidden="true"></span>
+          </td>
+      {% endif %}
+
+      {% if todo.priority == "Low" %}
+        <tr class="clickable-row alert alert-info" data-href="/details/{{ todo.id }}">
+          <td class="center-text">
+            <span class="text-info fa fa-info" aria-hidden="true"></span>
+          </td>
+      {% endif %}
+
+        <td>{{ todo.name }}</td>
+        <td>{{ todo.dueDate|date('d/m/Y H:i') }}</td>
+        <td>
+          <div class="btn-group-xs" role="group">
+            <a href="/details/{{ todo.id }}" data-toggle="tooltip" title="View" class="btn btn-success">
+              <span class="glyphicon glyphicon-search"></span>
+            </a>
+            <a href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit" class="btn btn-default">
+              <span class="glyphicon glyphicon-pencil"></span>
+            </a>
+            <a href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete" class="btn btn-danger">
+              <span class="glyphicon glyphicon-trash"></span>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+  });
+</script>
+{% endblock %}

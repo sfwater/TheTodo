@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {{ todo.name }}
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+  <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go Back">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </a>
+  <a class="btn btn-primary pull-right" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit">
+    <span class="glyphicon glyphicon-pencil"></span>
+  </a>
+
+  <h2 class="page-header">{{ todo.name }}</h2>
+  <ul class="list-group">
+    <li class="list-group-item">
+      {% if todo.priority == "High" %}
+        <span class="text-danger">
+      {% endif %}
+
+      {% if todo.priority == "Medium" %}
+        <span class="text-warning">
+      {% endif %}
+
+      {% if todo.priority == "Low" %}
+        <span class="text-info">
+      {% endif %}
+          Priority: <strong>{{ todo.priority }}</strong>
+        </span>
+    </li>
+    <li class="list-group-item">Due date: <strong>{{ todo.dueDate|date('d/m/Y H:i') }}</strong></li>
+    <li class="list-group-item">{{ todo.description }}</li>
+  </ul>
+  <a class="btn btn-danger pull-right" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete">
+    Delete {{ todo.name }}
+  </a>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock %}
