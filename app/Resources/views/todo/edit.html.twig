@@ -4,6 +4,10 @@
   Edit details
 {% endblock %}
 
+{% block stylesheets %}
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-datetimepicker.min.css" />
+{% endblock %}
+
 {% block navbar %}
 <li><a href="/">Todo list</a></li>
 <li><a href="/create">Create new</a></li>
@@ -18,8 +22,28 @@
     {{ form_row(form.name, {'attr' : {'class' : 'form-control'}}) }}
     {{ form_row(form.description, {'attr' : {'class' : 'form-control'}}) }}
     {{ form_row(form.priority, {'attr' : {'class' : 'form-control'}}) }}
-    {{ form_row(form.dueDate) }}
+    <label for="form_dueDate" class="required">Due Date</label>
+    <div class="form-group">
+        <div class='input-group date' id='dueDate'>
+            {{ form_widget(form.dueDate, {'attr' : {'class' : 'form-control'}}) }}
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
     {{ form_rest(form) }}
     <input type="submit" value="Edit" class="btn btn-primary pull-right" />
   </form>
+{% endblock %}
+
+{% block javascripts %}
+  <script src="/js/moment.js"></script>
+  <script src="/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript">
+    jQuery(function () {
+  	   jQuery('#dueDate').datetimepicker({
+         format: 'DD/MM/YYYY HH:mm'
+       });
+    });
+  </script>
 {% endblock %}
