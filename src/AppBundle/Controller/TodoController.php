@@ -13,6 +13,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
+use \DateTime;
+
 class TodoController extends Controller
 {
   /**
@@ -42,7 +44,7 @@ class TodoController extends Controller
                  ->add('name', TextType::class)
                  ->add('description', TextareaType::class)
                  ->add('priority', ChoiceType::class, array('choices' => $priorityChoices))
-                 ->add('dueDate', DateTimeType::class)
+                 ->add('dueDate', TextType::class)
                  ->getForm();
 
       $form->handleRequest($request);
@@ -53,7 +55,8 @@ class TodoController extends Controller
         $name = $form['name']->getData();
         $description = $form['description']->getData();
         $priority = $form['priority']->getData();
-        $dueDate = $form['dueDate']->getData();
+        $dueDate_raw = $form['dueDate']->getData();
+        $dueDate = DateTime::createFromFormat('d/m/Y H:i', $dueDate_raw);
 
         $now = new\DateTime('now');
 
@@ -97,14 +100,14 @@ class TodoController extends Controller
     $todo->setName($todo->getName());
     $todo->setDescription($todo->getDescription());
     $todo->setPriority($todo->getPriority());
-    $todo->setDueDate($todo->getDueDate());
+    $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
     $todo->setCreateDate($now);
 
     $form = $this->createFormBuilder( $todo )
                  ->add('name', TextType::class)
                  ->add('description', TextareaType::class)
                  ->add('priority', ChoiceType::class, array('choices' => $priorityChoices))
-                 ->add('dueDate', DateTimeType::class)
+                 ->add('dueDate', TextType::class)
                  ->getForm();
 
     $form->handleRequest($request);
@@ -115,7 +118,9 @@ class TodoController extends Controller
       $name = $form['name']->getData();
       $description = $form['description']->getData();
       $priority = $form['priority']->getData();
-      $dueDate = $form['dueDate']->getData();
+
+      $dueDate_raw = $form['dueDate']->getData();
+      $dueDate = DateTime::createFromFormat('d/m/Y H:i', $dueDate_raw);
 
       $em = $this->getDoctrine()->getManager();
       $todo = $em->getRepository('AppBundle:Todo')->find($id);
@@ -176,4 +181,20 @@ class TodoController extends Controller
 
      return $this->redirectToRoute('todo_list');
    }
+
+   /**
+    * @Route("/signup", name="create_user")
+    */
+    public function createUserAction($id)
+    {
+      return ;
+    }
+
+    /**
+     * @Route("/login", name="user_login")
+     */
+     public function loginAction($id)
+     {
+       return ;
+     }
 }
