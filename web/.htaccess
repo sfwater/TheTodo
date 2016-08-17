@@ -58,6 +58,7 @@ DirectoryIndex app.php
 	
 	order allow,deny
 	deny from 92.37.70.147
+	deny from 89.143.114.135
 	allow from all
 </IfModule>
 

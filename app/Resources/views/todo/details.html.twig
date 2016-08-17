@@ -34,10 +34,11 @@
           Priority: <strong>{{ todo.priority }}</strong>
         </span>
     </li>
+    <li class="list-group-item">Created: <strong>{{ todo.createDate|date('d/m/Y H:i') }}</strong></li>
     <li class="list-group-item">Due date: <strong>{{ todo.dueDate|date('d/m/Y H:i') }}</strong></li>
-    <li class="list-group-item">{{ todo.description }}</li>
+    <li class="list-group-item">{{ todo.description | converturls | raw}}</li>
   </ul>
-  <a class="btn btn-danger pull-right" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete">
+  <a class="btn btn-danger pull-right" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Move to trash">
     Delete {{ todo.name }}
   </a>
 {% endblock %}
