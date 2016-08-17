@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Trash
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+<div class="panel panel-default">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Todo</th>
+        <th>Due date</th>
+        <th>Actions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trash_item in trash %}
+      <tr>
+        <td>{{ trash_item.todoName }}</td>
+        <td>{{ trash_item.todoDueDate|date('d/m/Y H:i') }}</td>
+        <td>
+          <div class="btn-group-xs" role="group">
+            <a href="/restore/{{ trash_item.id }}" data-toggle="tooltip" title="Restore" class="btn btn-success">
+              <span class="fa fa-check"></span>
+            </a>
+            <a href="/remove/{{ trash_item.id }}" data-toggle="tooltip" title="Delete permanently" class="btn btn-danger">
+              <span class="fa fa-eraser"></span>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+  });
+</script>
+{% endblock %}
