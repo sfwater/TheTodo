@@ -5,6 +5,8 @@ CREATE TABLE todo (
   priority varchar(255) NOT NULL,
   due_date datetime NOT NULL,
   create_date datetime NOT NULL
+  deleted tinyint(1) NOT NULL,
+  trashed_date datetime NOT NULL
 );
 
 ALTER TABLE todo ADD PRIMARY KEY (id);

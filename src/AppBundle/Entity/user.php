@@ -125,4 +125,3 @@ class user
         return $this->createDate;
     }
 }
-
