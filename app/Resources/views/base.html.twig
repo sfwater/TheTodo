@@ -38,13 +38,13 @@
       </nav>
       <div class="container">
         {% for flash_message in app.session.flashbag.get('notice') %}
-          <div class="alert alert-success" id="message">
+          <div class="alert alert-success flash-message">
             {{ flash_message }}
           </div>
         {% endfor %}
 
         {% for flash_message in app.session.flashbag.get('error') %}
-          <div class="alert alert-danger" id="message">
+          <div class="alert alert-danger flash-message">
             {{ flash_message }}
           </div>
         {% endfor %}
@@ -63,8 +63,8 @@
       <script src="/js/bootstrap.min.js"></script>
       <script>
         setTimeout(function() {
-          $('#message').slideUp('slow', function() {
-            $('#message').fadeOut('slow');
+          $('.flash-message').slideUp('slow', function() {
+            $('.flash-message').fadeOut('slow');
           })
         }, 3000);
       </script>

@@ -22,8 +22,8 @@
     <tbody>
       {% for trash_item in trash %}
       <tr>
-        <td>{{ trash_item.todoName }}</td>
-        <td>{{ trash_item.todoDueDate|date('d/m/Y H:i') }}</td>
+        <td>{{ trash_item.name }}</td>
+        <td>{{ trash_item.dueDate|date('d/m/Y H:i') }}</td>
         <td>
           <div class="btn-group-xs" role="group">
             <a href="/restore/{{ trash_item.id }}" data-toggle="tooltip" title="Restore" class="btn btn-success">
@@ -45,12 +45,6 @@
 <script>
   $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip();
-  });
-
-  jQuery(document).ready(function($) {
-    $(".clickable-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
   });
 </script>
 {% endblock %}

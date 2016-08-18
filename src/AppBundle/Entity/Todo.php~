@@ -223,28 +223,4 @@ class Todo
     {
         return $this->deleted;
     }
-
-    /**
-     * Set trashedDate
-     *
-     * @param \DateTime $trashedDate
-     *
-     * @return Todo
-     */
-    public function setTrashedDate($trashedDate)
-    {
-        $this->trashedDate = $trashedDate;
-
-        return $this;
-    }
-
-    /**
-     * Get trashedDate
-     *
-     * @return \DateTime
-     */
-    public function getTrashedDate()
-    {
-        return $this->trashedDate;
-    }
 }

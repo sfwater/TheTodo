@@ -10,5 +10,3 @@ A simple todolist created in Symfony3.1
 - Highlight today's todos
 - Add multi-language support
 - Add multi-user support
-
-The link detection was done using code from https://github.com/liip/LiipUrlAutoConverterBundle
