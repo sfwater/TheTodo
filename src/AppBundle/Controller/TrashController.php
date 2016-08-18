@@ -3,7 +3,6 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Todo;
-use AppBundle\Entity\Trash;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
