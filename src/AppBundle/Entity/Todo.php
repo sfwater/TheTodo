@@ -56,19 +56,6 @@ class Todo
      */
     private $createDate;
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="deleted", type="boolean")
-     */
-    private $deleted = false;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="trashed_date", type="datetime")
-     */
-    private $trashedDate;
 
     /**
      * Get id
@@ -198,53 +185,5 @@ class Todo
     public function getCreateDate()
     {
         return $this->createDate;
-    }
-
-    /**
-     * Set deleted
-     *
-     * @param boolean $deleted
-     *
-     * @return Todo
-     */
-    public function setDeleted($deleted)
-    {
-        $this->deleted = $deleted;
-
-        return $this;
-    }
-
-    /**
-     * Get deleted
-     *
-     * @return boolean
-     */
-    public function getDeleted()
-    {
-        return $this->deleted;
-    }
-
-    /**
-     * Set trashedDate
-     *
-     * @param \DateTime $trashedDate
-     *
-     * @return Todo
-     */
-    public function setTrashedDate($trashedDate)
-    {
-        $this->trashedDate = $trashedDate;
-
-        return $this;
-    }
-
-    /**
-     * Get trashedDate
-     *
-     * @return \DateTime
-     */
-    public function getTrashedDate()
-    {
-        return $this->trashedDate;
     }
 }

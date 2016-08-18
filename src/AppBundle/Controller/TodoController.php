@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Todo;
+use AppBundle\Entity\Trash;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
@@ -26,7 +27,7 @@ class TodoController extends Controller
   {
     $todos = $this->getDoctrine()
                   ->getRepository('AppBundle:Todo')
-                  ->findByDeleted('0', array('dueDate' => 'ASC'));
+                  ->findBy(array(), array('dueDate' => 'ASC'));
 
       return $this->render('todo/index.html.twig', array(
         'todos' => $todos
@@ -67,8 +68,6 @@ class TodoController extends Controller
         $todo->setPriority($priority);
         $todo->setDueDate($dueDate);
         $todo->setCreateDate($now);
-        $todo->setTrashedDate($now);
-
 
         $em = $this->getDoctrine()->getManager();
 
@@ -162,15 +161,111 @@ class TodoController extends Controller
                  ->getRepository('AppBundle:Todo')
                  ->find($id);
 
-    if($todo->getDeleted() == 1)
+    return $this->render('todo/details.html.twig', array(
+      'todo' => $todo
+    ));
+  }
+
+  /**
+   * @Route("/delete/{id}", name="todo_trash")
+   */
+   public function deleteAction($id)
+   {
+     $em = $this->getDoctrine()->getManager();
+     $todo = $em->getRepository('AppBundle:Todo')->find($id);
+
+     $trash = new Trash;
+     $trash->setTodoName($todo->getName());
+     $trash->setTodoPriority($todo->getPriority());
+     $trash->setTodoDescription($todo->getDescription());
+     $trash->setTodoDueDate($todo->getDueDate());
+     $trash->setTodoCreateDate($todo->getCreateDate());
+
+     $em->persist($trash);
+     $em->remove($todo);
+     $em->flush();
+
+     $this->addFlash(
+       'notice',
+       'The Todo has been successfully moved to the trash can!'
+     );
+
+     return $this->redirectToRoute('todo_list');
+   }
+
+   /**
+    * @Route("/trash", name="trash_list")
+    */
+    public function listTrashAction()
     {
-      return $this->redirectToRoute('trash_list');
-    }
-    else
-    {
-      return $this->render('todo/details.html.twig', array(
-        'todo' => $todo
+      $trash = $this->getDoctrine()
+                    ->getRepository('AppBundle:Trash')
+                    ->findBy(array(), array('todoCreateDate' => 'DESC'));
+
+      return $this->render('todo/trash.html.twig', array(
+        'trash' => $trash
       ));
     }
-  }
+
+    /**
+     * @Route("/restore/{id}", name="trash_restore")
+     */
+     public function restoreTodoAction($id)
+     {
+       $em = $this->getDoctrine()->getManager();
+       $trash = $em->getRepository('AppBundle:Trash')->find($id);
+
+       $todo = new Todo;
+       $todo->setName($trash->getTodoName());
+       $todo->setPriority($trash->getTodoPriority());
+       $todo->setDescription($trash->getTodoDescription());
+       $todo->setDueDate($trash->getTodoDueDate());
+       $todo->setCreateDate($trash->getTodoCreateDate());
+
+       $em->persist($todo);
+       $em->remove($trash);
+       $em->flush();
+
+       $this->addFlash(
+         'notice',
+         'The Todo has been successfully restored!'
+       );
+
+       return $this->redirectToRoute('trash_list');
+     }
+
+   /**
+    * @Route("/remove/{id}", name="trash_remove")
+    */
+    public function removeTodoAction($id)
+    {
+      $em = $this->getDoctrine()->getManager();
+      $trash = $em->getRepository('AppBundle:Trash')->find($id);
+
+      $em->remove($trash);
+      $em->flush();
+
+      $this->addFlash(
+        'notice',
+        'The Todo has been permanently removed!'
+      );
+
+      return $this->redirectToRoute('trash_list');
+    }
+
+   /**
+    * @Route("/signup", name="user_create")
+    */
+    public function createUserAction($id)
+    {
+      return ;
+    }
+
+    /**
+     * @Route("/login", name="user_login")
+     */
+     public function loginAction($id)
+     {
+       return ;
+     }
 }
