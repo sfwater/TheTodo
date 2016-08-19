@@ -4,45 +4,72 @@
   {{ todo.name }}
 {% endblock %}
 
+{% block stylesheets %}
+<style type="text/css">
+.break-long-words
+{
+    /* Careful, this breaks the word wherever it is without a hyphen */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    /* Adds a hyphen where the word breaks */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+</style>
+{% endblock %}
+
 {% block navbar %}
 <li><a href="/">Todo list</a></li>
 <li><a href="/create">Create new</a></li>
 {% endblock %}
 
 {% block body %}
-  <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go Back">
-    <span class="glyphicon glyphicon-chevron-left"></span>
-  </a>
-  <a class="btn btn-primary pull-right" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit">
-    <span class="glyphicon glyphicon-pencil"></span>
-  </a>
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <div>
+                <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go Back">
+                  <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <a class="btn btn-primary pull-right" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit">
+                  <span class="glyphicon glyphicon-pencil"></span>
+                </a>
+            </div>
+        </div>
+      <div class="panel-body">
+          <h3 class="break-long-words">{{ todo.name }}</h3>
+      </div>
+          <ul class="list-group">
+            <li class="list-group-item">
+              {% if todo.priority == "High" %}
+                <span class="text-danger">
+              {% endif %}
 
-  <h2 class="page-header">{{ todo.name }}</h2>
-  <ul class="list-group">
-    <li class="list-group-item">
-      {% if todo.priority == "High" %}
-        <span class="text-danger">
-      {% endif %}
+              {% if todo.priority == "Medium" %}
+                <span class="text-warning">
+              {% endif %}
 
-      {% if todo.priority == "Medium" %}
-        <span class="text-warning">
-      {% endif %}
+              {% if todo.priority == "Low" %}
+                <span class="text-info">
+              {% endif %}
+                  Priority: <strong>{{ todo.priority }}</strong>
+                </span>
+            </li>
+            <li class="list-group-item">Created: <strong>{{ todo.createDate | date('d/m/Y H:i') }}</strong></li>
+            {% if edited %}
+                <li class="list-group-item">Edited: <strong>{{ todo.editDate | date('d/m/Y H:i') }}</strong></li>
+            {% endif %}
+            <li class="list-group-item">Due date: <strong>{{ todo.dueDate | date('d/m/Y H:i') }}</strong></li>
+            <li class="list-group-item break-long-words">{{ todo.description | raw | converturls | raw | nl2br }}</li>
+          </ul>
+    </div>
 
-      {% if todo.priority == "Low" %}
-        <span class="text-info">
-      {% endif %}
-          Priority: <strong>{{ todo.priority }}</strong>
-        </span>
-    </li>
-    <li class="list-group-item">Created: <strong>{{ todo.createDate | date('d/m/Y H:i') }}</strong></li>
-    {% if edited %}
-        <li class="list-group-item">Edited: <strong>{{ todo.editDate | date('d/m/Y H:i') }}</strong></li>
-    {% endif %}
-    <li class="list-group-item">Due date: <strong>{{ todo.dueDate | date('d/m/Y H:i') }}</strong></li>
-    <li class="list-group-item">{{ todo.description | raw | converturls | raw | nl2br }}</li>
-  </ul>
+
+
   <a class="btn btn-danger pull-right" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Move to trash">
-    Delete {{ todo.name }}
+    Delete "{{ todo.name }}"
   </a>
 {% endblock %}
 
