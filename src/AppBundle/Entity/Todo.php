@@ -71,6 +71,13 @@ class Todo
     private $trashedDate;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="edit_date", type="datetime")
+     */
+    private $editDate;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
@@ -308,5 +315,29 @@ class Todo
     public function getIsPublic()
     {
         return $this->isPublic;
+    }
+
+    /**
+     * Set editDate
+     *
+     * @param \DateTime $editDate
+     *
+     * @return Todo
+     */
+    public function setEditDate($editDate)
+    {
+        $this->editDate = $editDate;
+
+        return $this;
+    }
+
+    /**
+     * Get editDate
+     *
+     * @return \DateTime
+     */
+    public function getEditDate()
+    {
+        return $this->editDate;
     }
 }

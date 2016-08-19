@@ -59,6 +59,7 @@ class TodoController extends Controller
              $todo->setDueDate($dueDate);
              $todo->setCreateDate($now);
              $todo->setTrashedDate($now);
+             $todo->setEditDate($now);
              $todo->setUserId($user->getId());
 
              if( strlen($description) > 65535 )
@@ -110,7 +111,7 @@ class TodoController extends Controller
               $todo->setDescription($todo->getDescription());
               $todo->setPriority($todo->getPriority());
               $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
-              $todo->setCreateDate($now);
+              $todo->setEditDate($now);
 
               $form = $this->createForm(TodoType::class, $todo);
 
@@ -131,7 +132,6 @@ class TodoController extends Controller
                   $todo->setDescription($description);
                   $todo->setPriority($priority);
                   $todo->setDueDate($dueDate);
-                  $todo->setCreateDate($now);
 
                   if( strlen($description) > 65535 )
                   {
@@ -189,8 +189,16 @@ class TodoController extends Controller
                 }
                 else
                 {
+                    if( $todo->getCreateDate() < $todo->getEditDate() )
+                    {
+                        return $this->render('todo/details.html.twig', array(
+                            'todo' => $todo,
+                            'edited' => true
+                        ));
+                    }
                     return $this->render('todo/details.html.twig', array(
-                        'todo' => $todo
+                        'todo' => $todo,
+                        'edited' => false
                     ));
                 }
             }
