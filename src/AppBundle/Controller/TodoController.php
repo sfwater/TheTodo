@@ -61,16 +61,30 @@ class TodoController extends Controller
              $todo->setTrashedDate($now);
              $todo->setUserId($user->getId());
 
-             $em = $this->getDoctrine()->getManager();
-             $em->persist($todo);
-             $em->flush();
+             if( strlen($description) > 65535 )
+             {
+                 $this->addFlash('error', 'Todo description must not contain more than 65535 characters!');
+             }
+             elseif( strlen($name) > 255 )
+             {
+                 $this->addFlash('error', 'Todo name must not contain more than 255 characters!');
+             }
+             elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 65535 ) )
+             {
+                 $em = $this->getDoctrine()->getManager();
+                 $em->persist($todo);
+                 $em->flush();
 
-             $this->addFlash(
-                 'notice',
-                 'A new todo has been successfully created!'
-             );
-
-             return $this->redirectToRoute('todo_details', array('id' => $todo->getId()));
+                 $this->addFlash(
+                     'notice',
+                     'A new todo has been successfully created!'
+                 );
+                 return $this->redirectToRoute('todo_details', array('id' => $todo->getId()));
+             }
+             else
+             {
+                 $this->addFlash('error', 'An unknown error occurred!');
+             }
         }
 
         return $this->render('todo/create.html.twig', array(
@@ -119,14 +133,29 @@ class TodoController extends Controller
                   $todo->setDueDate($dueDate);
                   $todo->setCreateDate($now);
 
-                  $em->flush();
+                  if( strlen($description) > 65535 )
+                  {
+                      $this->addFlash('error', 'Todo description must not contain more than 65535 characters!');
+                  }
+                  elseif( strlen($name) > 255 )
+                  {
+                      $this->addFlash('error', 'Todo name must not contain more than 255 characters!');
+                  }
+                  elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 65535 ) )
+                  {
+                      $em->flush();
 
-                  $this->addFlash(
-                    'notice',
-                    'The Todo has been successfully updated!'
-                  );
+                      $this->addFlash(
+                        'notice',
+                        'The Todo has been successfully updated!'
+                      );
 
-                  return $this->redirectToRoute('todo_details', array('id' => $id));
+                      return $this->redirectToRoute('todo_details', array('id' => $id));
+                  }
+                  else
+                  {
+                      $this->addFlash('error', 'An unknown error occurred!');
+                  }
               }
 
               return $this->render('todo/edit.html.twig', array(
