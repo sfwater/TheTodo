@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Create an account
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+    input:-webkit-autofill
+    {
+        -webkit-box-shadow: 0 0 0px 1000px white inset;
+    }
+    .form-control::-webkit-input-placeholder
+    {
+        color: #242424;
+    }
+    .form-control:-moz-placeholder
+    {
+        color: #242424;
+    }
+    .form-control::-moz-placeholder
+    {
+        color: #242424;
+    }
+    .form-control:-ms-input-placeholder
+    {
+        color: #242424;
+    }
+</style>
+{% endblock %}
+
+{% block usernavbar %}
+    <li><a href="/login">Login</a></li>
+    <li class="active"><a href="/create_account">Create an account</a></li>
+{% endblock %}
+
+{% block body %}
+  <h2 class="page-header">Create a new account</h2>
+
+  <div class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <strong class="fa fa-info"></strong>&nbsp;&nbsp; Already have an account? <a href="/login" class="alert-link">Login.</a>
+  </div>
+
+  {% set usernameIssue = app.session.flashbag.get('usernameIssue') %}
+  {% set passwordIssue = app.session.flashbag.get('passwordIssue') %}
+
+  {% for flash_message in usernameIssue %}
+    <div class="alert alert-danger">
+      {{ flash_message }}
+    </div>
+  {% endfor %}
+
+  {% for flash_message in passwordIssue %}
+    <div class="alert alert-danger">
+      {{ flash_message }}
+    </div>
+  {% endfor %}
+
+  <form name="form" method="post">
+    {{ form_start(form) }}
+    {% if form_errors(form.plainPassword.first) | length > 0 %}
+        <div class="alert alert-danger">
+            The entered passwords did not match.
+        </div>
+    {% endif %}
+    {% if form_errors(form.username) | length > 0 %}
+        <div class="alert alert-danger">
+            Your desired username has already been taken.
+        </div>
+        <div class="form-group has-error">
+    {% elseif usernameIssue is not empty %}
+        <div class="form-group has-error">
+    {% else %}
+        <div class="form-group">
+    {% endif %}
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">
+                    <span class="fa fa-user fa-fw"></span>
+                </span>
+                {{ form_widget(form.username, {'attr' : {'class' : 'form-control', 'placeholder' : 'Username'}}) }}
+            </div>
+        </div>
+
+        {% if form_errors(form.plainPassword.first) | length > 0 %}
+            <div class="form-group has-error">
+        {% elseif passwordIssue is not empty %}
+            <div class="form-group has-error">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">
+                    <span class="fa fa-lock fa-fw"></span>
+                </span>
+                {{ form_widget(form.plainPassword.first, {'attr' : {'class' : 'form-control', 'placeholder' : 'Password'}}) }}
+            </div>
+        </div>
+
+        {% if form_errors(form.plainPassword.first) | length > 0 %}
+            <div class="form-group has-error">
+        {% elseif usernameIssue is not empty %}
+            <div class="form-group has-error">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">
+                    <span class="fa fa-lock fa-fw"></span>
+                </span>
+                {{ form_widget(form.plainPassword.second, {'attr' : {'class' : 'form-control', 'placeholder' : 'Confirm Password'}}) }}
+            </div>
+        </div>
+
+    <input type="submit" value="Create an account" class="btn btn-primary pull-right" />
+    {{ form_end(form) }}
+  </form>
+{% endblock %}

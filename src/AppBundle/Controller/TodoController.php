@@ -3,174 +3,144 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Todo;
+use AppBundle\Form\TodoType;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-
 use \DateTime;
 
 class TodoController extends Controller
 {
-  /**
-   * @Route("/", name="todo_list")
-   */
-  public function listAction()
-  {
-    $todos = $this->getDoctrine()
-                  ->getRepository('AppBundle:Todo')
-                  ->findByDeleted('0', array('dueDate' => 'ASC'));
+    /**
+     * @Route("/", name="todo_list")
+     */
+     public function listAction()
+     {
+         $todos = $this->getDoctrine()
+                       ->getRepository('AppBundle:Todo')
+                       ->findByDeleted('0', array('dueDate' => 'ASC'));
 
-      return $this->render('todo/index.html.twig', array(
-        'todos' => $todos
-      ));
-  }
+         return $this->render('todo/index.html.twig', array(
+             'todos' => $todos
+         ));
+}
 
-  /**
-   * @Route("/create", name="todo_create")
-   */
-  public function createAction(Request $request)
-  {
-    $todo = new Todo;
+    /**
+     * @Route("/create", name="todo_create")
+     */
+     public function createAction(Request $request)
+     {
+         $todo = new Todo();
+         $form = $this->createForm(TodoType::class, $todo);
+         $form->handleRequest($request);
 
-    $priorityChoices = array('Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High');
+         if($form->isSubmitted() && $form->isValid())
+         {
+             // Get data
+             $name = $form['name']->getData();
+             $description = $form['description']->getData();
+             $priority = $form['priority']->getData();
+             $dueDate = DateTime::createFromFormat('d/m/Y H:i', $form['dueDate']->getData());
+             $now = new\DateTime('now');
 
-    $form = $this->createFormBuilder( $todo )
-                 ->add('name', TextType::class)
-                 ->add('description', TextareaType::class)
-                 ->add('priority', ChoiceType::class, array('choices' => $priorityChoices))
-                 ->add('dueDate', TextType::class)
-                 ->getForm();
+             $todo->setName($name);
+             $todo->setDescription($description);
+             $todo->setPriority($priority);
+             $todo->setDueDate($dueDate);
+             $todo->setCreateDate($now);
+             $todo->setTrashedDate($now);
 
-      $form->handleRequest($request);
+             $em = $this->getDoctrine()->getManager();
+             $em->persist($todo);
+             $em->flush();
 
-      if($form->isSubmitted() && $form->isValid())
-      {
-        // Get data
-        $name = $form['name']->getData();
-        $description = $form['description']->getData();
-        $priority = $form['priority']->getData();
-        $dueDate_raw = $form['dueDate']->getData();
-        $dueDate = DateTime::createFromFormat('d/m/Y H:i', $dueDate_raw);
+             $this->addFlash(
+                 'notice',
+                 'A new todo has been successfully created!'
+             );
 
-        $now = new\DateTime('now');
+             return $this->redirectToRoute('todo_list');
+        }
 
-        $todo->setName($name);
-        $todo->setDescription($description);
-        $todo->setPriority($priority);
-        $todo->setDueDate($dueDate);
-        $todo->setCreateDate($now);
-        $todo->setTrashedDate($now);
-
-
-        $em = $this->getDoctrine()->getManager();
-
-        $em->persist($todo);
-        $em->flush();
-
-        $this->addFlash(
-          'notice',
-          'A new todo has been successfully created!'
-        );
-
-        return $this->redirectToRoute('todo_list');
-      }
-
-      return $this->render('todo/create.html.twig', array(
-        'form' => $form->createView()
-      ));
-  }
+        return $this->render('todo/create.html.twig', array(
+            'form' => $form->createView()
+        ));
+    }
 
   /**
    * @Route("/edit/{id}", name="todo_edit")
    */
-  public function editAction($id, Request $request)
-  {
-    $todo = $this->getDoctrine()
-                 ->getRepository('AppBundle:Todo')
-                 ->find($id);
+      public function editAction($id, Request $request)
+      {
+          $todo = $this->getDoctrine()
+                       ->getRepository('AppBundle:Todo')
+                       ->find($id);
 
-    $priorityChoices = array('Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High');
+          $now = new\DateTime('now');
+          $todo->setName($todo->getName());
+          $todo->setDescription($todo->getDescription());
+          $todo->setPriority($todo->getPriority());
+          $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
+          $todo->setCreateDate($now);
 
-    $now = new\DateTime('now');
+          $form = $this->createForm(TodoType::class, $todo);
 
-    $todo->setName($todo->getName());
-    $todo->setDescription($todo->getDescription());
-    $todo->setPriority($todo->getPriority());
-    $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
-    $todo->setCreateDate($now);
+          $form->handleRequest($request);
 
-    $form = $this->createFormBuilder( $todo )
-                 ->add('name', TextType::class)
-                 ->add('description', TextareaType::class)
-                 ->add('priority', ChoiceType::class, array('choices' => $priorityChoices))
-                 ->add('dueDate', TextType::class)
-                 ->getForm();
+          if($form->isSubmitted() && $form->isValid())
+          {
+              // Get data
+              $name = $form['name']->getData();
+              $description = $form['description']->getData();
+              $priority = $form['priority']->getData();
+              $dueDate = DateTime::createFromFormat('d/m/Y H:i', $form['dueDate']->getData());
 
-    $form->handleRequest($request);
+              $em = $this->getDoctrine()->getManager();
 
-    if($form->isSubmitted() && $form->isValid())
-    {
-      // Get data
-      $name = $form['name']->getData();
-      $description = $form['description']->getData();
-      $priority = $form['priority']->getData();
+              $todo = $em->getRepository('AppBundle:Todo')->find($id);
+              $todo->setName($name);
+              $todo->setDescription($description);
+              $todo->setPriority($priority);
+              $todo->setDueDate($dueDate);
+              $todo->setCreateDate($now);
 
-      $dueDate_raw = $form['dueDate']->getData();
-      $dueDate = DateTime::createFromFormat('d/m/Y H:i', $dueDate_raw);
+              $em->flush();
 
-      $em = $this->getDoctrine()->getManager();
-      $todo = $em->getRepository('AppBundle:Todo')->find($id);
+              $this->addFlash(
+                'notice',
+                'The Todo has been successfully updated!'
+              );
 
-      $todo->setName($name);
-      $todo->setDescription($description);
-      $todo->setPriority($priority);
-      $todo->setDueDate($dueDate);
-      $todo->setCreateDate($now);
+              return $this->redirectToRoute('todo_list');
+          }
 
-      $em->flush();
+          return $this->render('todo/edit.html.twig', array(
+              'todo' => $todo,
+              'form' => $form->createView()
+          ));
+      }
 
-        $this->addFlash(
-          'notice',
-          'The Todo has been successfully updated!'
-        );
+      /**
+       * @Route("/details/{id}", name="todo_details")
+       */
+      public function detailsAction($id)
+      {
+            $todo = $this->getDoctrine()
+                         ->getRepository('AppBundle:Todo')
+                         ->find($id);
 
-        return $this->redirectToRoute('todo_list');
-    }
-
-
-
-    return $this->render('todo/edit.html.twig', array(
-      'todo' => $todo,
-      'form' => $form->createView()
-    ));
-  }
-
-  /**
-   * @Route("/details/{id}", name="todo_details")
-   */
-  public function detailsAction($id)
-  {
-    $todo = $this->getDoctrine()
-                 ->getRepository('AppBundle:Todo')
-                 ->find($id);
-
-    if($todo->getDeleted() == 1)
-    {
-      return $this->redirectToRoute('trash_list');
-    }
-    else
-    {
-      return $this->render('todo/details.html.twig', array(
-        'todo' => $todo
-      ));
-    }
-  }
+            if($todo->getDeleted() == 1)
+            {
+                return $this->redirectToRoute('trash_list');
+            }
+            else
+            {
+                return $this->render('todo/details.html.twig', array(
+                    'todo' => $todo
+                ));
+            }
+      }
 }

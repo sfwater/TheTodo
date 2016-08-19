@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Login
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+    input:-webkit-autofill
+    {
+        -webkit-box-shadow: 0 0 0px 1000px white inset;
+    }
+    .form-control::-webkit-input-placeholder
+    {
+        color: #242424;
+    }
+    .form-control:-moz-placeholder
+    {
+        color: #242424;
+    }
+    .form-control::-moz-placeholder
+    {
+        color: #242424;
+    }
+    .form-control:-ms-input-placeholder
+    {
+        color: #242424;
+    }
+</style>
+{% endblock %}
+
+{% block usernavbar %}
+    <li class="active"><a href="/login">Login</a></li>
+    <li><a href="/create_account">Create an account</a></li>
+{% endblock %}
+
+{% block body %}
+<h2 class="page-header">Login</h2>
+<div class="alert alert-info alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong class="fa fa-info"></strong>&nbsp;&nbsp; Don't have an account yet? <a href="/create_account" class="alert-link">Create one.</a>
+</div>
+{% if error %}
+<div class="alert alert-danger">
+    <strong class="fa fa-exclamation-triangle "></strong>&nbsp;&nbsp; {{ error.messageKey | trans(error.messageData, 'security') }}
+</div>
+{% endif %}
+<form action="{{ path('login') }}" method="post">
+    <div class="form-group">
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon">
+                <span class="fa fa-user fa-fw"></span>
+            </span>
+            <input type="text" id="username" name="_username" value="{{ last_username }}" placeholder="Username" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon">
+                <span class="fa fa-lock fa-fw"></span>
+            </span>
+            <input type="password" id="password" name="_password" placeholder="Password" class="form-control" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary pull-right">Login</button>
+</form>
+{% endblock %}
