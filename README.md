@@ -7,6 +7,4 @@ A simple todolist created in Symfony3.1
 3. Make sure your document root is pointing to the *web* directory of this project.
 
 ### TODO
-- Highlight today's todos
 - Add multi-language support
-- Add multi-user support
