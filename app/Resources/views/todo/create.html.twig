@@ -4,8 +4,17 @@
   Create new
 {% endblock %}
 
+{% block headscripts %}
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+{% endblock %}
+
 {% block stylesheets %}
   <link rel="stylesheet" type="text/css" href="/css/bootstrap-datetimepicker.min.css" />
+  <script type="text/css">
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+        display: none !important;
+    }
+  </script>
 {% endblock %}
 
 {% block navbar %}
@@ -14,11 +23,26 @@
 {% endblock %}
 
 {% block body %}
+<div ng-app="">
   <h2 class="page-header">Create new</h2>
   <form name="form" method="post">
-    {{ form_row(form.name, {'attr' : {'class' : 'form-control'}}) }}
-    {{ form_row(form.description, {'attr' : {'class' : 'form-control'}}) }}
-    {{ form_row(form.priority, {'attr' : {'class' : 'form-control'}}) }}
+      <div class="form-group">
+          {{ form_row(form.name, {'attr' : {'class' : 'form-control'}}) }}
+      </div>
+        {% verbatim %}
+            <div class="form-group{{ description.length >= 255 ? ' has-error' : ''}}">
+        {% endverbatim %}
+            {{ form_label(form.description) }}
+            {% verbatim %}
+                <span ng-if="description.length > 40" ng-cloak>
+                    {{ description.length >= 255 ? '0' : 255 - description.length }} characters left
+                </span>
+            {% endverbatim %}
+            {{ form_widget(form.description, {'attr' : {'class' : 'form-control', 'ng-model' : 'description', 'ng-trim' : 'false'}}) }}
+        </div>
+    <div class="form-group">
+        {{ form_row(form.priority, {'attr' : {'class' : 'form-control'}}) }}
+    </div>
     <label for="form_dueDate" class="required">Due Date</label>
     <div class="form-group">
         <div class='input-group date' id='dueDate'>
@@ -29,8 +53,13 @@
         </div>
     </div>
     {{ form_rest(form) }}
-    <input type="submit" value="Create" class="btn btn-primary pull-right" />
+    <div class="form-group">
+        {% verbatim %}
+            <input type="submit" value="Create" class="btn btn-primary pull-right{{ description.length >= 255 ? ' disabled' : ''}}" />
+        {% endverbatim %}
+    </div>
   </form>
+</div>
 {% endblock %}
 
 {% block javascripts %}

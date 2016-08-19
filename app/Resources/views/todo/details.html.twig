@@ -35,8 +35,9 @@
         </span>
     </li>
     <li class="list-group-item">Created: <strong>{{ todo.createDate|date('d/m/Y H:i') }}</strong></li>
+    <li class="list-group-item">Edited: <strong>SOON TO BE IMPLEMENTED</strong></li>
     <li class="list-group-item">Due date: <strong>{{ todo.dueDate|date('d/m/Y H:i') }}</strong></li>
-    <li class="list-group-item">{{ todo.description | converturls | raw}}</li>
+    <li class="list-group-item">{{ todo.description | raw | converturls | raw | nl2br }}</li>
   </ul>
   <a class="btn btn-danger pull-right" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Move to trash">
     Delete {{ todo.name }}

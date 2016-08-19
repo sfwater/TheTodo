@@ -16,9 +16,14 @@ class TrashController extends Controller
        */
        public function listTrashAction()
        {
+             $user = $this->get('security.token_storage')->getToken()->getUser();
+
              $trash = $this->getDoctrine()
                            ->getRepository('AppBundle:Todo')
-                           ->findByDeleted('1', array('trashedDate' => 'DESC'));
+                           ->findBy(
+                                array('deleted' => 1, 'user_id' => $user->getId()),
+                                array('trashedDate' => 'DESC')
+                           );
 
              if(empty($trash))
              {
@@ -41,19 +46,28 @@ class TrashController extends Controller
        */
        public function moveToTrashAction($id)
        {
+             $user = $this->get('security.token_storage')->getToken()->getUser();
+
              $em = $this->getDoctrine()->getManager();
              $todo = $em->getRepository('AppBundle:Todo')->find($id);
 
-             $now = new\DateTime('now');
-             $todo->setDeleted('1');
-             $todo->setTrashedDate($now);
+             if($todo->getUserId() == $user->getId())
+             {
+                 $now = new\DateTime('now');
+                 $todo->setDeleted('1');
+                 $todo->setTrashedDate($now);
 
-             $em->flush();
+                 $em->flush();
 
-             $this->addFlash(
-                 'notice',
-                 'The Todo has been successfully moved to the trash can!'
-             );
+                 $this->addFlash(
+                     'notice',
+                     'The Todo has been successfully moved to the trash can!'
+                 );
+             }
+             else
+             {
+                 $this->addFlash('error', 'Access denied!');
+             }
 
              return $this->redirectToRoute('todo_list');
        }
@@ -63,17 +77,26 @@ class TrashController extends Controller
          */
          public function restoreTodoAction($id)
          {
+               $user = $this->get('security.token_storage')->getToken()->getUser();
+
                $em = $this->getDoctrine()->getManager();
                $todo = $em->getRepository('AppBundle:Todo')->find($id);
 
-               $todo->setDeleted('0');
+               if($todo->getUserId() == $user->getId())
+               {
+                   $todo->setDeleted('0');
 
-               $em->flush();
+                   $em->flush();
 
-               $this->addFlash(
-                    'notice',
-                    'The Todo has been successfully restored!'
-               );
+                   $this->addFlash(
+                        'notice',
+                        'The Todo has been successfully restored!'
+                   );
+               }
+               else
+               {
+                   $this->addFlash('error', 'Access denied!');
+               }
 
                return $this->redirectToRoute('trash_list');
          }
@@ -83,16 +106,25 @@ class TrashController extends Controller
           */
           public function removePermanentlyAction($id)
           {
+                $user = $this->get('security.token_storage')->getToken()->getUser();
+
                 $em = $this->getDoctrine()->getManager();
                 $todo = $em->getRepository('AppBundle:Todo')->find($id);
 
-                $em->remove($todo);
-                $em->flush();
+                if($todo->getUserId() == $user->getId())
+                {
+                    $em->remove($todo);
+                    $em->flush();
 
-                $this->addFlash(
-                      'notice',
-                      'The Todo has been permanently removed!'
-                );
+                    $this->addFlash(
+                          'notice',
+                          'The Todo has been permanently removed!'
+                    );
+                }
+                else
+                {
+                    $this->addFlash('error', 'Access denied!');
+                }
 
                 return $this->redirectToRoute('trash_list');
           }

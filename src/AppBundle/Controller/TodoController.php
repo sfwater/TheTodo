@@ -19,9 +19,14 @@ class TodoController extends Controller
      */
      public function listAction()
      {
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+
          $todos = $this->getDoctrine()
                        ->getRepository('AppBundle:Todo')
-                       ->findByDeleted('0', array('dueDate' => 'ASC'));
+                       ->findBy(
+                            array('deleted' => 0, 'user_id' => $user->getId()),
+                            array('dueDate' => 'ASC')
+         );
 
          return $this->render('todo/index.html.twig', array(
              'todos' => $todos
@@ -46,12 +51,15 @@ class TodoController extends Controller
              $dueDate = DateTime::createFromFormat('d/m/Y H:i', $form['dueDate']->getData());
              $now = new\DateTime('now');
 
+             $user = $this->get('security.token_storage')->getToken()->getUser();
+
              $todo->setName($name);
              $todo->setDescription($description);
              $todo->setPriority($priority);
              $todo->setDueDate($dueDate);
              $todo->setCreateDate($now);
              $todo->setTrashedDate($now);
+             $todo->setUserId($user->getId());
 
              $em = $this->getDoctrine()->getManager();
              $em->persist($todo);
@@ -62,7 +70,7 @@ class TodoController extends Controller
                  'A new todo has been successfully created!'
              );
 
-             return $this->redirectToRoute('todo_list');
+             return $this->redirectToRoute('todo_details', array('id' => $todo->getId()));
         }
 
         return $this->render('todo/create.html.twig', array(
@@ -75,52 +83,62 @@ class TodoController extends Controller
    */
       public function editAction($id, Request $request)
       {
+          $user = $this->get('security.token_storage')->getToken()->getUser();
+
           $todo = $this->getDoctrine()
                        ->getRepository('AppBundle:Todo')
                        ->find($id);
 
-          $now = new\DateTime('now');
-          $todo->setName($todo->getName());
-          $todo->setDescription($todo->getDescription());
-          $todo->setPriority($todo->getPriority());
-          $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
-          $todo->setCreateDate($now);
-
-          $form = $this->createForm(TodoType::class, $todo);
-
-          $form->handleRequest($request);
-
-          if($form->isSubmitted() && $form->isValid())
+          if($todo->getUserId() == $user->getId())
           {
-              // Get data
-              $name = $form['name']->getData();
-              $description = $form['description']->getData();
-              $priority = $form['priority']->getData();
-              $dueDate = DateTime::createFromFormat('d/m/Y H:i', $form['dueDate']->getData());
-
-              $em = $this->getDoctrine()->getManager();
-
-              $todo = $em->getRepository('AppBundle:Todo')->find($id);
-              $todo->setName($name);
-              $todo->setDescription($description);
-              $todo->setPriority($priority);
-              $todo->setDueDate($dueDate);
+              $now = new\DateTime('now');
+              $todo->setName($todo->getName());
+              $todo->setDescription($todo->getDescription());
+              $todo->setPriority($todo->getPriority());
+              $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
               $todo->setCreateDate($now);
 
-              $em->flush();
+              $form = $this->createForm(TodoType::class, $todo);
 
-              $this->addFlash(
-                'notice',
-                'The Todo has been successfully updated!'
-              );
+              $form->handleRequest($request);
 
+              if($form->isSubmitted() && $form->isValid())
+              {
+                  // Get data
+                  $name = $form['name']->getData();
+                  $description = $form['description']->getData();
+                  $priority = $form['priority']->getData();
+                  $dueDate = DateTime::createFromFormat('d/m/Y H:i', $form['dueDate']->getData());
+
+                  $em = $this->getDoctrine()->getManager();
+
+                  $todo = $em->getRepository('AppBundle:Todo')->find($id);
+                  $todo->setName($name);
+                  $todo->setDescription($description);
+                  $todo->setPriority($priority);
+                  $todo->setDueDate($dueDate);
+                  $todo->setCreateDate($now);
+
+                  $em->flush();
+
+                  $this->addFlash(
+                    'notice',
+                    'The Todo has been successfully updated!'
+                  );
+
+                  return $this->redirectToRoute('todo_details', array('id' => $id));
+              }
+
+              return $this->render('todo/edit.html.twig', array(
+                  'todo' => $todo,
+                  'form' => $form->createView()
+              ));
+          }
+          else
+          {
+              $this->addFlash('error', 'Access denied!');
               return $this->redirectToRoute('todo_list');
           }
-
-          return $this->render('todo/edit.html.twig', array(
-              'todo' => $todo,
-              'form' => $form->createView()
-          ));
       }
 
       /**
@@ -128,19 +146,30 @@ class TodoController extends Controller
        */
       public function detailsAction($id)
       {
+            $user = $this->get('security.token_storage')->getToken()->getUser();
+
             $todo = $this->getDoctrine()
                          ->getRepository('AppBundle:Todo')
                          ->find($id);
 
-            if($todo->getDeleted() == 1)
+            if($todo->getUserId() == $user->getId())
             {
-                return $this->redirectToRoute('trash_list');
+                if($todo->getDeleted() == 1)
+                {
+                    return $this->redirectToRoute('trash_list');
+                }
+                else
+                {
+                    return $this->render('todo/details.html.twig', array(
+                        'todo' => $todo
+                    ));
+                }
             }
             else
             {
-                return $this->render('todo/details.html.twig', array(
-                    'todo' => $todo
-                ));
+                $this->addFlash('error', 'Access denied!');
+                return $this->redirectToRoute('todo_list');
             }
+
       }
 }

@@ -37,16 +37,17 @@
 
 {% block body %}
 <div class="panel panel-default">
-  <table class="table">
-    <thead>
-      <tr>
-        <th></th>
-        <th>Todo</th>
-        <th>Due date</th>
-        <th>Actions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-      </tr>
-    </thead>
-    <tbody>
+    {% if todos is not empty %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Todo</th>
+          <th>Due date</th>
+          <th>Actions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
       {% for todo in todos %}
 
       {% if todo.priority == "High" %}
@@ -87,8 +88,16 @@
         </td>
       </tr>
       {% endfor %}
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+    {% else %}
+    <div class="panel-heading">
+        <h4>No todos</h4>
+    </div>
+    <div class="panel-body">
+        You have no todos at the moment. <a href="/create">Create one?</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
