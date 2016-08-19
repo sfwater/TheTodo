@@ -28,9 +28,9 @@
 <a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting started</h2>
 
 <ol>
-<li>Run the todo.sql to generate a table fit for the current project.</li>
 <li>Modify the parameters.yml (/app/config/parameters.yml) so this project can connect to your database.</li>
-<li>Make sure your document root is pointing to the web directory of this project.</li>
+<li>Run <code>php bin/console doctrine:schema:update --force</code> to update or generate the required tables.</li>
+<li>Make sure your document root is pointing to the <em>web</em> directory of this project.</li>
 </ol>
 
       <footer class="site-footer">
