@@ -4,6 +4,10 @@
   Create an account
 {% endblock %}
 
+{% block headscripts %}
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+{% endblock %}
+
 {% block stylesheets %}
 <style type="text/css">
     input:-webkit-autofill
@@ -26,6 +30,9 @@
     {
         color: #242424;
     }
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+        display: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -36,7 +43,7 @@
 
 {% block body %}
   <h2 class="page-header">Create a new account</h2>
-
+<div ng-app="newUserApp" ng-controller="mainController">
   <div class="alert alert-info alert-dismissible" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <strong class="fa fa-info"></strong>&nbsp;&nbsp; Already have an account? <a href="/login" class="alert-link">Login.</a>
@@ -72,13 +79,23 @@
     {% elseif usernameIssue is not empty %}
         <div class="form-group has-error">
     {% else %}
-        <div class="form-group">
+        {% verbatim %}
+        <div class="form-group{{ showUsernameLengthWarning ? ' has-error' : ''}}">
+        {% endverbatim %}
     {% endif %}
             <div class="input-group input-group-lg">
                 <span class="input-group-addon">
                     <span class="fa fa-user fa-fw"></span>
                 </span>
-                {{ form_widget(form.username, {'attr' : {'class' : 'form-control', 'placeholder' : 'Username'}}) }}
+                {{ form_widget(form.username, {'attr' : {'class' : 'form-control', 'placeholder' : 'Username', 'ng-model' : 'username', 'ng-change' : 'change()'}}) }}
+                {% verbatim %}
+                    <div ng-if="usernameShort" class="input-group-addon">
+                        Too short
+                    </div>
+                    <div ng-if="usernameLong" class="input-group-addon">
+                        Too long
+                    </div>
+                {% endverbatim %}
             </div>
         </div>
 
@@ -115,4 +132,36 @@
     <input type="submit" value="Create an account" class="btn btn-primary pull-right" />
     {{ form_end(form) }}
   </form>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    var newUserApp = angular.module('newUserApp', [])
+
+        .controller('mainController', function($scope) {
+            $scope.showUsernameLengthWarning = false;
+            $scope.usernameShort = false;
+            $scope.usernameLong = false;
+            $scope.change = function() {
+                if($scope.username.length < 5)
+                {
+                    $scope.showUsernameLengthWarning = true;
+                    $scope.usernameShort = true;
+                }
+                else if($scope.username.length > 32)
+                {
+                    $scope.showUsernameLengthWarning = true;
+                    $scope.usernameLong = true;
+                }
+                else
+                {
+                    $scope.showUsernameLengthWarning = false;
+                    $scope.usernameLong = false;
+                    $scope.usernameShort = false;
+                }
+            }
+
+    });
+</script>
 {% endblock %}
