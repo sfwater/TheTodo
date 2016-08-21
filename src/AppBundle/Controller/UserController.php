@@ -19,11 +19,12 @@ class UserController extends Controller
     {
         // Check if user is already logged in
         $securityContext = $this->container->get('security.authorization_checker');
-        if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY')) {
+        if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
+        {
             $this->addFlash('notice', 'Logged in');
             return $this->redirectToRoute('todo_list');
         }
-        
+
         $user = new User();
         $form = $this->createForm(RegistrationType::class, $user);
         $form->handleRequest($request);
@@ -61,5 +62,47 @@ class UserController extends Controller
         return $this->render('user/create.html.twig', array(
             'form' => $form->createView()
         ));
+    }
+
+    /**
+     * @Route("/profile/{id}", name="user_profile")
+     */
+    public function displayProfileAction($id)
+    {
+        $user = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($id);
+
+        if(!$user)
+        {
+            $this->addFlash('error', 'Profile could not be found.');
+            return $this->redirectToRoute('todo_list');
+        }
+        else
+        {
+            $todos = $this->getDoctrine()->getRepository('AppBundle:Todo')->findBy(array('user_id' => $user->getId(), 'isPublic' => '1'), array('dueDate' => 'ASC'));
+        }
+
+        return $this->render('user/profile.html.twig', array(
+            'user' => $user,
+            'todos' => $todos
+        ));
+    }
+
+    /**
+     * @Route("/profile", name="user_profile_redirect")
+     */
+    public function profileRedirectAction()
+    {
+        $securityContext = $this->container->get('security.authorization_checker');
+        if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
+        {
+            $user = $this->get('security.token_storage')->getToken()->getUser();
+            return $this->redirectToRoute('user_profile', array(
+                'id' => $user->getId()
+            ));
+        }
+        else
+        {
+            return $this->redirectToRoute('login');
+        }
     }
 }

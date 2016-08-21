@@ -18,6 +18,9 @@
     -moz-hyphens: auto;
     hyphens: auto;
 }
+.active a {
+    color: #FFF;
+}
 </style>
 {% endblock %}
 
@@ -29,17 +32,24 @@
 {% block body %}
     <div class="panel panel-default">
         <div class="panel-heading clearfix">
-            <div>
-                <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go Back">
-                  <span class="glyphicon glyphicon-chevron-left"></span>
-                </a>
-                <a class="btn btn-primary pull-right" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit">
-                  <span class="glyphicon glyphicon-pencil"></span>
-                </a>
-            </div>
+            <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go Back">
+              <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="btn btn-primary pull-right" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit">
+              <span class="glyphicon glyphicon-pencil"></span>
+            </a>
         </div>
       <div class="panel-body">
-          <h3 class="break-long-words">{{ todo.name }}</h3>
+          <h2 class="break-long-words">
+              {{ todo.name }}
+              <a class="btn btn-default pull-right" href="/share/{{ todo.linkHash }}" data-toggle="tooltip" title="Share">
+                  {% if todo.isPublic %}
+                    <span>Shared</span>
+                  {% else %}
+                    <span class="fa fa-share-alt"></span>
+                  {% endif %}
+              </a>
+          </h2>
       </div>
           <ul class="list-group">
             <li class="list-group-item">
@@ -62,7 +72,7 @@
                 <li class="list-group-item">Edited: <strong>{{ todo.editDate | date('d/m/Y H:i') }}</strong></li>
             {% endif %}
             <li class="list-group-item">Due date: <strong>{{ todo.dueDate | date('d/m/Y H:i') }}</strong></li>
-            <li class="list-group-item break-long-words">{{ todo.description | raw | converturls | raw | nl2br }}</li>
+            <li class="list-group-item break-long-words active">{{ todo.description | raw | converturls | raw | nl2br }}</li>
           </ul>
     </div>
 

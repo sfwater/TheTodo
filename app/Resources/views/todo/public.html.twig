@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {{ todo.name }}
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+.break-long-words
+{
+    /* Careful, this breaks the word wherever it is without a hyphen */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    /* Adds a hyphen where the word breaks */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+.active a {
+    color: #FFF;
+}
+</style>
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <div>
+                <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go to the homepage">
+                  <span class="fa fa-home fa-fw"></span>
+                </a>
+                {% if isOwner %}
+                    <a class="btn btn-default pull-right" href="/unshare/{{ todo.linkHash }}" data-toggle="tooltip" title="Stop sharing">
+                      <span class="fa fa-eye-slash fa-fw"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default pull-right" href="/profile/{{ owner.id }}" data-toggle="tooltip" title="Visit {{ owner.username }}'s profile">
+                      <span class="fa fa-user fa-fw"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+      <div class="panel-body">
+          <h3 class="break-long-words">{{ todo.name }}</h3>
+      </div>
+          <ul class="list-group">
+            <li class="list-group-item">Due date: <strong>{{ todo.dueDate | date('d/m/Y H:i') }}</strong></li>
+            <li class="list-group-item break-long-words active">{{ todo.description | raw | converturls | raw | nl2br }}</li>
+          </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+{% endblock %}

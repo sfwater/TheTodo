@@ -72,7 +72,7 @@
       {% endif %}
 
         <td>{{ todo.name }}</td>
-        <td>{{ todo.dueDate|date('d/m/Y H:i') }}</td>
+        <td>{{ todo.dueDate | date('d/m/Y H:i') }}</td>
         <td>
           <div class="btn-group-xs" role="group">
             <a href="/details/{{ todo.id }}" data-toggle="tooltip" title="View" class="btn btn-success">

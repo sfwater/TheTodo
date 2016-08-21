@@ -44,6 +44,9 @@ class TodoController extends Controller
 
          if($form->isSubmitted() && $form->isValid())
          {
+             // Share link hash
+             $salt = md5('linkHashSalt');
+
              // Get data
              $name = $form['name']->getData();
              $description = $form['description']->getData();
@@ -61,6 +64,8 @@ class TodoController extends Controller
              $todo->setTrashedDate($now);
              $todo->setEditDate($now);
              $todo->setUserId($user->getId());
+             $todo->setLinkHash('HASH');
+             //$todo->setLinkHash($linkHash);
 
              if( strlen($description) > 65535 )
              {
@@ -72,15 +77,24 @@ class TodoController extends Controller
              }
              elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 65535 ) )
              {
+
                  $em = $this->getDoctrine()->getManager();
                  $em->persist($todo);
+                 $em->flush();
+
+                 $id = $todo->getId();
+
+                 $linkHash = md5($salt.$id);
+
+                 $todo->setLinkHash($linkHash);
+
                  $em->flush();
 
                  $this->addFlash(
                      'notice',
                      'A new todo has been successfully created!'
                  );
-                 return $this->redirectToRoute('todo_details', array('id' => $todo->getId()));
+                 return $this->redirectToRoute('todo_details', array('id' => $id));
              }
              else
              {
@@ -208,5 +222,121 @@ class TodoController extends Controller
                 return $this->redirectToRoute('todo_list');
             }
 
+      }
+
+      /**
+       * @Route("/share/{hash}", name="todo_shared")
+       */
+      public function sharedAction($hash)
+      {
+          $securityContext = $this->container->get('security.authorization_checker');
+
+          if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
+          {
+              $user = $this->get('security.token_storage')->getToken()->getUser();
+              $userid = $user->getId();
+          }
+          else
+          {
+              $userid = -1;
+          }
+
+          $todo = $this->getDoctrine()
+                       ->getRepository('AppBundle:Todo')
+                       ->findOneByLinkHash($hash);
+
+          if(!$todo)
+          {
+              $this->addFlash('error', 'The todo was not found');
+              return $this->redirectToRoute('todo_list');
+          }
+          else
+          {
+              $todoUserId = $todo->getUserId();
+
+              $todoOwner = $this->getDoctrine()
+                           ->getRepository('AppBundle:User')
+                           ->findOneById($todoUserId);
+
+              $ownerUsername = $todoOwner->getUsername();
+
+              if($todoUserId == $userid)
+              {
+                  // It's the todo owner!
+                  if($todo->getIsPublic() == 0)
+                  {
+                      $em = $this->getDoctrine()->getManager();
+
+                      $todo->setIsPublic(1);
+
+                      $em->flush();
+
+                      $this->addFlash('notice', 'This todo is now publicly shared!');
+                  }
+
+                  return $this->render('todo/public.html.twig', array(
+                      'todo' => $todo,
+                      'isOwner' => 1,
+                      'owner' => $todoOwner
+                  ));
+              }
+              else
+              {
+                  // It's not the todo owner!
+                  if($todo->getIsPublic() == 0)
+                  {
+                      $this->addFlash('error', 'This todo is not publicly available!');
+                      return $this->redirectToRoute('todo_list');
+                  }
+                  else
+                  {
+                      return $this->render('todo/public.html.twig', array(
+                          'todo' => $todo,
+                          'isOwner' => 0,
+                          'owner' => $todoOwner
+                      ));
+                  }
+              }
+          }
+      }
+      /**
+       * @Route("/unshare/{hash}", name="todo_unshare")
+       */
+      public function unshareAction($hash)
+      {
+          $securityContext = $this->container->get('security.authorization_checker');
+
+          if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
+          {
+              $user = $this->get('security.token_storage')->getToken()->getUser();
+              $userid = $user->getId();
+
+              $todo = $this->getDoctrine()
+                           ->getRepository('AppBundle:Todo')
+                           ->findOneByLinkHash($hash);
+
+              if(!$todo)
+              {
+                  $this->addFlash('error', 'The todo was not found');
+                  return $this->redirectToRoute('todo_list');
+              }
+              else
+              {
+                  if($todo->getUserId() == $userid)
+                  {
+                      $em = $this->getDoctrine()->getManager();
+
+                      $todo->setIsPublic(0);
+
+                      $em->flush();
+
+                      $this->addFlash('notice', 'This todo is no longer publicly shared!');
+                      return $this->redirectToRoute('todo_details', array('id' => $todo->getId()));
+                  }
+
+              }
+          }
+          $this->addFlash('error', 'Access denied!');
+          return $this->redirectToRoute('todo_list');
       }
 }

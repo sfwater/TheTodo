@@ -32,6 +32,7 @@ security:
     access_control:
         - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/create_account$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/share/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
             # activate different ways to authenticate

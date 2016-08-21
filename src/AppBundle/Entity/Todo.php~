@@ -347,28 +347,4 @@ class Todo
     {
         return $this->editDate;
     }
-
-    /**
-     * Set linkHash
-     *
-     * @param string $linkHash
-     *
-     * @return Todo
-     */
-    public function setLinkHash($linkHash)
-    {
-        $this->linkHash = $linkHash;
-
-        return $this;
-    }
-
-    /**
-     * Get linkHash
-     *
-     * @return string
-     */
-    public function getLinkHash()
-    {
-        return $this->linkHash;
-    }
 }

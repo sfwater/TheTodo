@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {{ user.username }}'s profile
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+.break-long-words
+{
+    /* Careful, this breaks the word wherever it is without a hyphen */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    /* Adds a hyphen where the word breaks */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+.active a {
+    color: #FFF;
+}
+</style>
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <a class="btn btn-default pull-left" href="/" data-toggle="tooltip" title="Go to the homepage">
+              <span class="fa fa-home fa-fw"></span>
+            </a>
+        </div>
+      <div class="panel-body">
+          <h2>{{ user.username }}</h2>
+      </div>
+          <ul class="list-group">
+            <li class="list-group-item active">{{ user.username }}'s public todolist</li>
+            {% for todo in todos %}
+                <li class="clickable-row list-group-item" data-href="/share/{{ todo.linkHash }}">{{ todo.name }}</li>
+            {% endfor %}
+          </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+  });
+</script>
+{% endblock %}
