@@ -52,7 +52,9 @@
       </div>
           <ul class="list-group">
             <li class="list-group-item">Due date: <strong>{{ todo.dueDate | date('d/m/Y H:i') }}</strong></li>
-            <li class="list-group-item break-long-words active">{{ todo.description | raw | converturls | raw | nl2br }}</li>
+            {% if todo.description %}
+                <li class="list-group-item break-long-words">{{ todo.description | raw | converturls | raw | nl2br }}</li>
+            {% endif %}
           </ul>
     </div>
 {% endblock %}

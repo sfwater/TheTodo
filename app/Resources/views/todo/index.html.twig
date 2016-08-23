@@ -73,6 +73,13 @@
             opacity: 1;
         }
     }
+
+    .list-group-item {
+        line-height: 35px;
+    }
+    .list-group-item .priority {
+        margin-right: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -86,20 +93,20 @@
 {% endblock %}
 
 {% block body %}
+{% if todos is not empty %}
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h4>Your todolist</h4>
     </div>
-    {% if todos is not empty %}
     <ul class="list-group" id="sortable">
         {% for todo in todos %}
             <li class="list-group-item clickable-row clearfix" data-id="{{ todo.id }}" data-href="/details/{{ todo.id }}">
                 {% if todo.priority == "High" %}
-                  <span class="text-danger fa fa-exclamation-circle fa-fw"></span>
+                  <span class="text-danger fa fa-exclamation-circle fa-fw priority"></span>
                 {% elseif todo.priority == "Medium" %}
-                  <span class="text-warning fa fa-exclamation-triangle fa-fw"></span>
+                  <span class="text-warning fa fa-exclamation-triangle fa-fw priority"></span>
                 {% else %}
-                  <span class="text-info fa fa-exclamation fa-fw"></span>
+                  <span class="text-info fa fa-exclamation fa-fw priority"></span>
                 {% endif %}
                 <strong>{{ todo.name }}</strong>
                 <div class="btn-group btn-group-sm pull-right" role="group">
@@ -110,7 +117,8 @@
           </li>
         {% endfor %}
     </div>
-    {% else %}
+{% else %}
+<div class="panel panel-default">
     <div class="panel-heading">
         <h4>No todos</h4>
     </div>

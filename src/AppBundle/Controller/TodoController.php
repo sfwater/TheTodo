@@ -74,7 +74,7 @@ class TodoController extends Controller
              $todo->setLinkHash('HASH');
              //$todo->setLinkHash($linkHash);
 
-             if( strlen($description) > 65535 )
+             if( strlen($description) > 32767 )
              {
                  $this->addFlash('error', 'Todo description must not contain more than 65535 characters!');
              }
@@ -82,7 +82,7 @@ class TodoController extends Controller
              {
                  $this->addFlash('error', 'Todo name must not contain more than 255 characters!');
              }
-             elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 65535 ) )
+             elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 32767 ) )
              {
 
                  $em = $this->getDoctrine()->getManager();
@@ -154,7 +154,7 @@ class TodoController extends Controller
                   $todo->setDueDate($dueDate);
                   $todo->setEditDate($now);
 
-                  if( strlen($description) > 65535 )
+                  if( strlen($description) > 32767 )
                   {
                       $this->addFlash('error', 'Todo description must not contain more than 65535 characters!');
                   }
@@ -162,7 +162,7 @@ class TodoController extends Controller
                   {
                       $this->addFlash('error', 'Todo name must not contain more than 255 characters!');
                   }
-                  elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 65535 ) )
+                  elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 32767 ) )
                   {
                       $em->flush();
 

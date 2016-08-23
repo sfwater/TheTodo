@@ -31,9 +31,9 @@ class Todo
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=65535)
+     * @ORM\Column(name="description", type="string", length=32767, nullable=true)
      */
-    private $description;
+    private $description = null;
 
     /**
      * @var string
@@ -346,5 +346,29 @@ class Todo
     public function getEditDate()
     {
         return $this->editDate;
+    }
+
+    /**
+     * Set linkHash
+     *
+     * @param string $linkHash
+     *
+     * @return Todo
+     */
+    public function setLinkHash($linkHash)
+    {
+        $this->linkHash = $linkHash;
+
+        return $this;
+    }
+
+    /**
+     * Get linkHash
+     *
+     * @return string
+     */
+    public function getLinkHash()
+    {
+        return $this->linkHash;
     }
 }

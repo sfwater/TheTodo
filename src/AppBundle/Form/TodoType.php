@@ -16,7 +16,7 @@ class TodoType extends AbstractType
         $priorityChoices = array('Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High');
 
         $builder->add('name', TextType::class)
-                ->add('description', TextareaType::class)
+                ->add('description', TextareaType::class, array('required' => false))
                 ->add('priority', ChoiceType::class, array('choices' => $priorityChoices))
                 ->add('dueDate', TextType::class);
     }

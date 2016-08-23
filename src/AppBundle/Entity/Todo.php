@@ -31,9 +31,9 @@ class Todo
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=65535)
+     * @ORM\Column(name="description", type="string", length=32767, nullable=true)
      */
-    private $description;
+    private $description = null;
 
     /**
      * @var string
