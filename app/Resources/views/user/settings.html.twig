@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Settings
+{% endblock %}
+
+{% block stylesheets %}
+<style type="text/css">
+.break-long-words
+{
+    /* Careful, this breaks the word wherever it is without a hyphen */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    /* Adds a hyphen where the word breaks */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+.active a {
+    color: #FFF;
+}
+</style>
+{% endblock %}
+
+{% block navbar %}
+<li><a href="/">Todo list</a></li>
+<li><a href="/create">Create new</a></li>
+{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h2>Settings</h2>
+        </div>
+      <ul class="list-group">
+          <li class="list-group-item clearfix">
+              You can manage your account settings here. Note that any changes made will not be reversable!
+          </li>
+          <li class="list-group-item list-group-item-danger clearfix">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#myModal">
+                  Delete account
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                      </div>
+                      <div class="modal-body">
+                        If you delete your account, all of your existing data will be wiped from our servers and it will not be recoverable! Do you wish to continue?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-danger" id="deleteAccount">Yes, I wish to delete my account</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </li>
+      </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    $(document).ready(function() {
+      $("#deleteAccount").click(function() {
+          window.document.location = "/delete_account/{{ delete_parameter }}";
+      });
+    });
+</script>
+{% endblock %}

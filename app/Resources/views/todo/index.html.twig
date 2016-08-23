@@ -27,7 +27,57 @@
   .alert-info {
     color: #003FC8;
   }
+  .clickable-row {
+      cursor: pointer;
+  }
+  .ghost {
+      opacity: .5;
+      background: #C8EBFB;
+  }
+
+  #sortable {
+    animation: fadein 2s;
+    -moz-animation: fadein 2s; /* Firefox */
+    -webkit-animation: fadein 2s; /* Safari and Chrome */
+    -o-animation: fadein 2s; /* Opera */
+    }
+    @keyframes fadein {
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+    @-moz-keyframes fadein { /* Firefox */
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+    @-webkit-keyframes fadein { /* Safari and Chrome */
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+    @-o-keyframes fadein { /* Opera */
+        from {
+            opacity:0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
 </style>
+{% endblock %}
+
+{% block headscripts %}
+<script src="/js/Sortable.min.js"></script>
 {% endblock %}
 
 {% block navbar %}
@@ -36,60 +86,30 @@
 {% endblock %}
 
 {% block body %}
-<div class="panel panel-default">
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4>Your todolist</h4>
+    </div>
     {% if todos is not empty %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Todo</th>
-          <th>Due date</th>
-          <th>Actions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for todo in todos %}
-
-      {% if todo.priority == "High" %}
-        <tr class="clickable-row alert alert-danger" data-href="/details/{{ todo.id }}">
-          <td class="center-text">
-            <span class="text-danger fa fa-exclamation-circle" aria-hidden="true"></span>
-          </td>
-      {% endif %}
-
-      {% if todo.priority == "Medium" %}
-        <tr class="clickable-row alert alert-warning" data-href="/details/{{ todo.id }}">
-          <td class="center-text">
-            <span class="text-warning fa fa-exclamation-triangle" aria-hidden="true"></span>
-          </td>
-      {% endif %}
-
-      {% if todo.priority == "Low" %}
-        <tr class="clickable-row alert alert-info" data-href="/details/{{ todo.id }}">
-          <td class="center-text">
-            <span class="text-info fa fa-info" aria-hidden="true"></span>
-          </td>
-      {% endif %}
-
-        <td>{{ todo.name }}</td>
-        <td>{{ todo.dueDate | date('d/m/Y H:i') }}</td>
-        <td>
-          <div class="btn-group-xs" role="group">
-            <a href="/details/{{ todo.id }}" data-toggle="tooltip" title="View" class="btn btn-success">
-              <span class="glyphicon glyphicon-search"></span>
-            </a>
-            <a href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit" class="btn btn-default">
-              <span class="glyphicon glyphicon-pencil"></span>
-            </a>
-            <a href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Move to trash" class="btn btn-danger">
-              <span class="glyphicon glyphicon-trash"></span>
-            </a>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <ul class="list-group" id="sortable">
+        {% for todo in todos %}
+            <li class="list-group-item clickable-row clearfix" data-id="{{ todo.id }}" data-href="/details/{{ todo.id }}">
+                {% if todo.priority == "High" %}
+                  <span class="text-danger fa fa-exclamation-circle fa-fw"></span>
+                {% elseif todo.priority == "Medium" %}
+                  <span class="text-warning fa fa-exclamation-triangle fa-fw"></span>
+                {% else %}
+                  <span class="text-info fa fa-exclamation fa-fw"></span>
+                {% endif %}
+                <strong>{{ todo.name }}</strong>
+                <div class="btn-group btn-group-sm pull-right" role="group">
+                    <a class="btn btn-default" href="/details/{{ todo.id }}" data-toggle="tooltip" title="View"><span class="fa fa-eye"></span></a>
+                    <a class="btn btn-warning" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit"><span class="fa fa-pencil"></span></a>
+                    <a class="btn btn-danger" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete"><span class="fa fa-trash-o"></span></a>
+                </div>
+          </li>
+        {% endfor %}
+    </div>
     {% else %}
     <div class="panel-heading">
         <h4>No todos</h4>
@@ -102,9 +122,55 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
+  <script>
+
+  var saved = '{{ saved_order | raw }}';
+  var savedOrder = saved.split(",");
+
+  var el = document.getElementById('sortable');
+  var sortable = Sortable.create(el, {
+      group: 'todos',
+      sort: true,
+      delay: 0,
+      store: {
+          /**
+           * Get the order of elements. Called once during initialization.
+           * @param   {Sortable}  sortable
+           * @returns {Array}
+           */
+          get: function (sortable) {
+              var order = localStorage.getItem(sortable.options.group.name);
+              return order ? order.split(',') : [];
+          },
+
+          /**
+           * Save the order of elements. Called onEnd (when the item is dropped).
+           * @param {Sortable}  sortable
+           */
+          set: function (sortable) {
+              var order = sortable.toArray();
+              localStorage.setItem(sortable.options.group.name, order.join(','));
+          }
+      },
+      ghostClass: 'ghost',
+      dataIdAttr: 'data-id',
+      chosenClass: "sortable-chosen",
+      scroll: true,
+      scrollSensitivity: 30,
+      scrollSpeed: 10,
+      onEnd: function (evt) {
+          var order = sortable.toArray();
+          $.ajax({
+              type: 'GET',
+              url: '/order/apply?data=' + order,
+              dataType: "text"
+          });
+      }
+  });
+  sortable.sort(savedOrder);
+
   $(document).ready(function(){
-      $('[data-toggle="tooltip"]').tooltip();
+      $('[data-toggle="tooltip"]').tooltip({container: 'body'});
   });
 
   jQuery(document).ready(function($) {

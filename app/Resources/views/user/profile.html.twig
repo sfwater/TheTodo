@@ -21,6 +21,12 @@
 .active a {
     color: #FFF;
 }
+img {
+    width: 64px;
+}
+.clickable-row {
+    cursor: pointer;
+}
 </style>
 {% endblock %}
 
@@ -37,12 +43,37 @@
             </a>
         </div>
       <div class="panel-body">
-          <h2>{{ user.username }}</h2>
+          <div class="media">
+              <div class="media-left">
+                  <a href="#">
+                      <img class="media-object" src="/img/user.png" alt="default account picture">
+                  </a>
+              </div>
+              <div class="media-body">
+                  <h2>
+                      {{ user.username }}
+                      {% if user_id >= 0 %}
+                          <a class="pull-right text-muted" href="/settings" data-toggle="tooltip" title="Open settings">
+                              <span class="fa fa-cog fa-fw"></span>
+                          </a>
+                      {% endif %}
+                  </h2>
+              </div>
+          </div>
       </div>
           <ul class="list-group">
-            <li class="list-group-item active">{{ user.username }}'s public todolist</li>
+            <li class="list-group-item active">
+                {{ user.username }}'s public todolist
+            </li>
             {% for todo in todos %}
-                <li class="clickable-row list-group-item" data-href="/share/{{ todo.linkHash }}">{{ todo.name }}</li>
+                <li class="clickable-row list-group-item clearfix" data-href="/share/{{ todo.linkHash }}">
+                    {{ todo.name }}
+                    {% if user_id >= 0 %}
+                        <a class="pull-right text-danger" href="/unshare/{{ todo.linkHash }}" data-toggle="tooltip" title="Stop sharing">
+                            <span class="fa fa-eye-slash fa-fw"></span>
+                        </a>
+                    {% endif %}
+                </li>
             {% endfor %}
           </ul>
     </div>

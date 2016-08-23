@@ -6,9 +6,12 @@ use AppBundle\Entity\Todo;
 use AppBundle\Form\TodoType;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 use \DateTime;
 
@@ -19,17 +22,21 @@ class TodoController extends Controller
      */
      public function listAction()
      {
-         $user = $this->get('security.token_storage')->getToken()->getUser();
+         $currentUser = $this->get('security.token_storage')->getToken()->getUser();
+         $userid = $currentUser->getId();
+
+         $user = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($userid);
+
+         $todoOrder = $user->getTodoOrder();
 
          $todos = $this->getDoctrine()
                        ->getRepository('AppBundle:Todo')
-                       ->findBy(
-                            array('deleted' => 0, 'user_id' => $user->getId()),
-                            array('dueDate' => 'ASC')
+                       ->findBy(array('deleted' => 0, 'user_id' => $userid), array('id' => 'DESC')
          );
 
          return $this->render('todo/index.html.twig', array(
-             'todos' => $todos
+             'todos' => $todos,
+             'saved_order' => $todoOrder
          ));
 }
 
@@ -116,7 +123,7 @@ class TodoController extends Controller
 
           $todo = $this->getDoctrine()
                        ->getRepository('AppBundle:Todo')
-                       ->find($id);
+                       ->findOneById($id);
 
           if($todo->getUserId() == $user->getId())
           {
@@ -125,7 +132,6 @@ class TodoController extends Controller
               $todo->setDescription($todo->getDescription());
               $todo->setPriority($todo->getPriority());
               $todo->setDueDate($todo->getDueDate()->format('d/m/Y H:i'));
-              $todo->setEditDate($now);
 
               $form = $this->createForm(TodoType::class, $todo);
 
@@ -141,11 +147,12 @@ class TodoController extends Controller
 
                   $em = $this->getDoctrine()->getManager();
 
-                  $todo = $em->getRepository('AppBundle:Todo')->find($id);
+                  $todo = $em->getRepository('AppBundle:Todo')->findOneById($id);
                   $todo->setName($name);
                   $todo->setDescription($description);
                   $todo->setPriority($priority);
                   $todo->setDueDate($dueDate);
+                  $todo->setEditDate($now);
 
                   if( strlen($description) > 65535 )
                   {
@@ -299,6 +306,7 @@ class TodoController extends Controller
               }
           }
       }
+
       /**
        * @Route("/unshare/{hash}", name="todo_unshare")
        */
@@ -338,5 +346,30 @@ class TodoController extends Controller
           }
           $this->addFlash('error', 'Access denied!');
           return $this->redirectToRoute('todo_list');
+      }
+
+      /**
+       * @Route("/order/apply", name="todo_reorder")
+       */
+      public function reorderAction(Request $request)
+      {
+          if ($request->isXMLHttpRequest()) {
+              $data = $request->query->get('data');
+
+              $currentUser = $this->get('security.token_storage')->getToken()->getUser();
+              $userid = $currentUser->getId();
+
+              $user = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($userid);
+
+              $em = $this->getDoctrine()->getManager();
+
+              $user->setTodoOrder($data);
+
+              $em->flush();
+
+              return new JsonResponse();
+          }
+
+          return new Response('Invalid request', 400);
       }
 }

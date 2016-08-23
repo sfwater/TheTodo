@@ -59,6 +59,13 @@ class User implements AdvancedUserInterface, \Serializable
      */
     private $isActive = 1;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="todo_order", type="string", length=16384)
+     */
+    private $todoOrder = "{}";
+
     public function __construct()
     {
         $this->isActive = true;
@@ -234,5 +241,29 @@ class User implements AdvancedUserInterface, \Serializable
     public function getIsActive()
     {
         return $this->isActive;
+    }
+
+    /**
+     * Set todoOrder
+     *
+     * @param string $todoOrder
+     *
+     * @return User
+     */
+    public function setTodoOrder($todoOrder)
+    {
+        $this->todoOrder = $todoOrder;
+
+        return $this;
+    }
+
+    /**
+     * Get todoOrder
+     *
+     * @return string
+     */
+    public function getTodoOrder()
+    {
+        return $this->todoOrder;
     }
 }
