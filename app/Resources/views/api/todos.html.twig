@@ -1,0 +1,17 @@
+{% for todo in todos %}
+    <li class="list-group-item clickable-row clearfix" data-id="{{ todo.id }}" data-href="/details/{{ todo.id }}">
+        {% if todo.priority == "High" %}
+          <span class="text-danger fa fa-exclamation-circle fa-fw priority"></span>
+            {% elseif todo.priority == "Medium" %}
+              <span class="text-warning fa fa-exclamation-triangle fa-fw priority"></span>
+            {% else %}
+              <span class="text-info fa fa-exclamation fa-fw priority"></span>
+            {% endif %}
+            <strong>{{ todo.name }}</strong>
+            <div class="btn-group btn-group-sm pull-right" role="group">
+                <a class="btn btn-primary" href="#" data-toggle="tooltip" title="Due date">{{ todo.dueDate | date('d/m/Y H:i') }}</a>
+                <a class="btn btn-warning" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit"><span class="fa fa-pencil"></span></a>
+                <a class="btn btn-danger" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete"><span class="fa fa-trash-o"></span></a>
+            </div>
+    </li>
+{% endfor %}

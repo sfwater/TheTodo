@@ -110,7 +110,7 @@
                 {% endif %}
                 <strong>{{ todo.name }}</strong>
                 <div class="btn-group btn-group-sm pull-right" role="group">
-                    <a class="btn btn-default" href="/details/{{ todo.id }}" data-toggle="tooltip" title="View"><span class="fa fa-eye"></span></a>
+                    <a class="btn btn-primary" href="#" data-toggle="tooltip" title="Due date">{{ todo.dueDate | date('d/m/Y H:i') }}</a>
                     <a class="btn btn-warning" href="/edit/{{ todo.id }}" data-toggle="tooltip" title="Edit"><span class="fa fa-pencil"></span></a>
                     <a class="btn btn-danger" href="/delete/{{ todo.id }}" data-toggle="tooltip" title="Delete"><span class="fa fa-trash-o"></span></a>
                 </div>
@@ -186,5 +186,23 @@
         window.document.location = $(this).data("href");
     });
   });
+</script>
+
+<script type="text/javascript">
+var changeHash = "{{ changeHash }}";
+setInterval(function() {
+    $.getJSON("/api/v1/changed", function(json) {
+        if(json.changeHash) {
+            if(json.changeHash != changeHash) {
+                $("#sortable").load("/api/v1/todos");
+                changeHash = json.changeHash;
+            }
+        }
+        else {
+            window.location.href = "/login";
+        }
+    });
+}, 1500);
+
 </script>
 {% endblock %}

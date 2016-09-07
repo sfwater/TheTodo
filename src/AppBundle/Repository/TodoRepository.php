@@ -10,4 +10,12 @@ namespace AppBundle\Repository;
  */
 class TodoRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findByUserId($userid)
+    {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT t FROM AppBundle:Todo t WHERE t.user_id = :userid ORDER BY t.id ASC'
+            )->setParameter('userid', $userid)
+            ->getResult();
+    }
 }

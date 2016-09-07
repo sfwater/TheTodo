@@ -48,6 +48,8 @@ class TrashController extends Controller
        {
              $user = $this->get('security.token_storage')->getToken()->getUser();
 
+             $currentUser = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($user->getId());
+
              $em = $this->getDoctrine()->getManager();
              $todo = $em->getRepository('AppBundle:Todo')->find($id);
 
@@ -56,6 +58,8 @@ class TrashController extends Controller
                  $now = new\DateTime('now');
                  $todo->setDeleted('1');
                  $todo->setTrashedDate($now);
+
+                 $currentUser->setChanged(md5($now->format('U')));
 
                  $em->flush();
 
@@ -79,12 +83,18 @@ class TrashController extends Controller
          {
                $user = $this->get('security.token_storage')->getToken()->getUser();
 
+               $currentUser = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($user->getId());
+
                $em = $this->getDoctrine()->getManager();
                $todo = $em->getRepository('AppBundle:Todo')->find($id);
 
                if($todo->getUserId() == $user->getId())
                {
                    $todo->setDeleted('0');
+
+                   $now = new\DateTime('now');
+
+                   $currentUser->setChanged(md5($now->format('U')));
 
                    $em->flush();
 

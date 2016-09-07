@@ -60,6 +60,11 @@ class User implements AdvancedUserInterface, \Serializable
     private $isActive = 1;
 
     /**
+     * @ORM\Column(name="changed", type="string", length=255)
+     */
+    private $changed = 0;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="todo_order", type="string", length=16384)
@@ -265,5 +270,29 @@ class User implements AdvancedUserInterface, \Serializable
     public function getTodoOrder()
     {
         return $this->todoOrder;
+    }
+
+    /**
+     * Set changed
+     *
+     * @param boolean $changed
+     *
+     * @return User
+     */
+    public function setChanged($changed)
+    {
+        $this->changed = $changed;
+
+        return $this;
+    }
+
+    /**
+     * Get changed
+     *
+     * @return boolean
+     */
+    public function getChanged()
+    {
+        return $this->changed;
     }
 }

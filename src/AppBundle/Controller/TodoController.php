@@ -29,6 +29,8 @@ class TodoController extends Controller
 
          $todoOrder = $user->getTodoOrder();
 
+         $changeHash = $user->getChanged();
+
          $todos = $this->getDoctrine()
                        ->getRepository('AppBundle:Todo')
                        ->findBy(array('deleted' => 0, 'user_id' => $userid), array('id' => 'DESC')
@@ -36,7 +38,8 @@ class TodoController extends Controller
 
          return $this->render('todo/index.html.twig', array(
              'todos' => $todos,
-             'saved_order' => $todoOrder
+             'saved_order' => $todoOrder,
+             'changeHash' => $changeHash
          ));
 }
 
@@ -63,6 +66,8 @@ class TodoController extends Controller
 
              $user = $this->get('security.token_storage')->getToken()->getUser();
 
+             $currentUser = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($user->getId());
+
              $todo->setName($name);
              $todo->setDescription($description);
              $todo->setPriority($priority);
@@ -72,7 +77,8 @@ class TodoController extends Controller
              $todo->setEditDate($now);
              $todo->setUserId($user->getId());
              $todo->setLinkHash('HASH');
-             //$todo->setLinkHash($linkHash);
+
+             $currentUser->setChanged(md5($now->format('U')));
 
              if( strlen($description) > 32767 )
              {
@@ -125,6 +131,8 @@ class TodoController extends Controller
                        ->getRepository('AppBundle:Todo')
                        ->findOneById($id);
 
+          $currentUser = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($user->getId());
+
           if($todo->getUserId() == $user->getId())
           {
               $now = new\DateTime('now');
@@ -164,6 +172,8 @@ class TodoController extends Controller
                   }
                   elseif( ( strlen($name) <= 255 ) && ( strlen($description) <= 32767 ) )
                   {
+                      $currentUser->setChanged(md5($now->format('U')));
+
                       $em->flush();
 
                       $this->addFlash(
@@ -365,11 +375,75 @@ class TodoController extends Controller
 
               $user->setTodoOrder($data);
 
+              $now = new\DateTime('now');
+
+              $user->setChanged(md5($now->format('U')));
+
               $em->flush();
 
-              return new JsonResponse();
+              return new JsonResponse(array('success' => true));
           }
 
           return new Response('Invalid request', 400);
+      }
+
+      /**
+       * @Route("/api/v1/changed", name="todo_changed")
+       */
+      public function changedAction(Request $request)
+      {
+          $currentUser = $this->get('security.token_storage')->getToken()->getUser();
+          $userid = $currentUser->getId();
+
+          $user = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($userid);
+
+          $changed = $user->getChanged();
+
+          return new JsonResponse(array('changeHash' => $changed));
+      }
+
+      /**
+       * @Route("/api/v1/todos", name="todo_list_api")
+       */
+      public function apiTodosAction()
+      {
+          $currentUser = $this->get('security.token_storage')->getToken()->getUser();
+          $userid = $currentUser->getId();
+
+          $user = $this->getDoctrine()->getRepository('AppBundle:User')->findOneById($userid);
+
+          $todoOrder = $user->getTodoOrder();
+
+          $order = explode(",", $todoOrder);
+
+          $todos = $this->getDoctrine()
+                        ->getRepository('AppBundle:Todo')
+                        ->findBy(array('deleted' => 0, 'user_id' => $userid), array('id' => 'ASC')
+          );
+
+          $todolist = array();
+
+          foreach($order as $key => $value)
+          {
+              foreach($todos as $k => $todo)
+              {
+                  if($todo->getId() == $value) {
+                      $element = array('id' => $todo->getId(), 'priority' => $todo->getPriority(), 'name' => $todo->getName(), 'dueDate' => $todo->getDueDate());
+                      array_push($todolist, $element);
+                      unset($todos[$k]);
+                  }
+              }
+          }
+
+          foreach($todos as $todo)
+          {
+              $element = array('id' => $todo->getId(), 'priority' => $todo->getPriority(), 'name' => $todo->getName(), 'dueDate' => $todo->getDueDate());
+              array_unshift($todolist, $element);
+          }
+
+          return $this->render('api/todos.html.twig', array(
+              'todos' => $todolist,
+              'saved_order' => $todoOrder
+          ));
       }
 }
